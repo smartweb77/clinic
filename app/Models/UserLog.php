@@ -21,7 +21,7 @@ class UserLog extends Model
 
     public function admin()
     {
-        return $this->belongsTo('App\Models\Admin');
+        return $this->belongsTo(\App\Models\Admin::class);
     }
 
     public function getRelateModelUrl($id)

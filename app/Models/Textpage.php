@@ -15,7 +15,7 @@ class Textpage extends Model
 
     private static $current_class = __CLASS__;
 
-    private static $translates_class = 'App\Models\TextpagesTranslate';
+    private static $translates_class = \App\Models\TextpagesTranslate::class;
 
     private static $main_table = 'textpages';
 
@@ -30,12 +30,12 @@ class Textpage extends Model
 
     public function images()
     {
-        return $this->hasMany('App\Models\TextpagesPhoto', 'parent_id');
+        return $this->hasMany(\App\Models\TextpagesPhoto::class, 'parent_id');
     }
 
     public function videos()
     {
-        return $this->hasMany('App\Models\TextpagesVideo', 'parent_id')->orderBy('id', 'DESC');
+        return $this->hasMany(\App\Models\TextpagesVideo::class, 'parent_id')->orderBy('id', 'DESC');
     }
 
     public static function addItem($request)

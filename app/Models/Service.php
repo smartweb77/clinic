@@ -15,7 +15,7 @@ class Service extends Model
 
     private static $current_class = __CLASS__;
 
-    private static $translates_class = 'App\Models\ServiceTranslate';
+    private static $translates_class = \App\Models\ServiceTranslate::class;
 
     private static $main_table = 'services';
 

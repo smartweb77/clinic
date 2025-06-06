@@ -15,7 +15,7 @@ class Slider extends Model
 
     private static $current_class = __CLASS__;
 
-    private static $translates_class = 'App\Models\SlidersTranslate';
+    private static $translates_class = \App\Models\SlidersTranslate::class;
 
     private static $main_table = 'sliders';
 

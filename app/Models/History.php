@@ -17,7 +17,7 @@ class History extends Model
 
     private static $current_class = __CLASS__;
 
-    private static $translates_class = 'App\Models\HistoryTranslate';
+    private static $translates_class = \App\Models\HistoryTranslate::class;
 
     private static $main_table = 'histories';
 

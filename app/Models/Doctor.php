@@ -15,7 +15,7 @@ class Doctor extends Model
 
     private static $current_class = __CLASS__;
 
-    private static $translates_class = 'App\Models\DoctorTranslate';
+    private static $translates_class = \App\Models\DoctorTranslate::class;
 
     private static $main_table = 'doctors';
 

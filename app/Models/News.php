@@ -15,7 +15,7 @@ class News extends Model
 
     private static $current_class = __CLASS__;
 
-    private static $translates_class = 'App\Models\NewsTranslate';
+    private static $translates_class = \App\Models\NewsTranslate::class;
 
     private static $main_table = 'news';
 
