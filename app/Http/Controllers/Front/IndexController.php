@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\News;
 use App\Models\Service;
 use App\Models\Slider;
+use Illuminate\View\View;
 
 class IndexController extends Controller
 {

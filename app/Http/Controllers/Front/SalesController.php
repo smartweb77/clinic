@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\Sale;
 use Cache;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class SalesController extends Controller
 {

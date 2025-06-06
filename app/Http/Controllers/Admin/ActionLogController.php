@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\View\View;
 use App\Models\UserLog;
+use Illuminate\View\View;
 
 class ActionLogController extends BaseController
 {

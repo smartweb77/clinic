@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\History;
+use Illuminate\View\View;
 
 class HistoryController extends Controller
 {

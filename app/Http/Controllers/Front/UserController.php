@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Order;
@@ -12,7 +10,9 @@ use Auth;
 use Carbon\Carbon;
 use DB;
 use Hash;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 use Mail;
 use PDF;
 use Session;
@@ -166,9 +166,9 @@ class UserController extends Controller
              */
         } elseif ($request->payment_type == 2) { // საბანკო გადარიცხვა
             $invoice_data = [
-                    'address' => $request->address,
-                    'delivery_price' => $delivery_price,
-                ];
+                'address' => $request->address,
+                'delivery_price' => $delivery_price,
+            ];
 
             $order_data = [];
             $order_code = substr(uniqid(), 0, 11);

@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\RedirectResponse;
 use App\Models\Configuration;
 use Cache;
 use DB;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ConfigurationsController extends BaseController

@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\View\View;
-use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\View\View;
 
 class ServicesController extends Controller
 {

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\View\View;
 use DB;
+use Illuminate\View\View;
 
 class ChangelogsController extends BaseController
 {

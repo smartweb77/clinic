@@ -2,13 +2,13 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\NewsCategories;
 use App\Models\Tag;
 use DB;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class BlogsController extends Controller
 {

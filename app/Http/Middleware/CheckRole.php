@@ -2,11 +2,11 @@
 
 namespace App\Http\Middleware;
 
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Http\Request;
 use Closure;
 use DB;
+use Illuminate\Http\Request;
 use Session;
+use Symfony\Component\HttpFoundation\Response;
 
 class CheckRole
 {
