@@ -4,16 +4,18 @@ namespace App\Http\Controllers\Front;
 
 use App\Http\Controllers\Controller;
 use App\Models\Message;
-use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         return view('client.contact.index');
     }
 
-    public function send(Request $request){
+    public function send(Request $request)
+    {
         $request->validate([
             'name' => 'required',
             'email' => 'required',
@@ -26,10 +28,10 @@ class ContactController extends Controller
             'email' => $request->email,
             'message' => $request->message,
             'subject' => $request->subject,
-            'date' => Carbon::now()->toDateTimeString()
+            'date' => Carbon::now()->toDateTimeString(),
         ]);
 
-        if($store){
+        if ($store) {
             return redirect()->back()->with('status', 1);
         }
     }

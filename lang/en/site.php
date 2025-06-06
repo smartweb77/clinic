@@ -15,6 +15,5 @@ return [
     'message' => 'Message',
     'send' => 'Send',
     'phone' => 'Phone',
-    'address' => 'Address'
+    'address' => 'Address',
 ];
-

@@ -2,20 +2,25 @@
 
 namespace App\Models;
 
+use App\Traits\ActionLog;
 use DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
-use App\Traits\ActionLog;
 
 class Information extends Model
 {
     use ActionLog;
 
     protected $fillable = ['image'];
+
     protected $table = 'informations';
+
     private static $current_class = __CLASS__;
+
     private static $translates_class = 'App\Models\InformationsTranslate';
+
     private static $main_table = 'informations';
+
     private static $translates_table = 'informations_translates';
 
     public static function get_required_lang()
@@ -34,84 +39,70 @@ class Information extends Model
             'logo_for_admin',
             'favicon',
             'login_bg',
-            'status'
+            'status',
         ]);
 
-        foreach ($request_keys as $key => $value)
-        {
-            if(in_array($key, $table_columns))
-            {
+        foreach ($request_keys as $key => $value) {
+            if (in_array($key, $table_columns)) {
                 $item->$key = $value;
             }
         }
 
-        if ($request->hasFile('logo'))
-        {
+        if ($request->hasFile('logo')) {
             $destination = 'uploads/informations';
             $extension = $request->file('logo')->getClientOriginalExtension();
-            $fileName = mt_rand(11111,99999).time().'.'.$extension;
+            $fileName = mt_rand(11111, 99999).time().'.'.$extension;
             $request->file('logo')->move($destination, $fileName);
             $image_src = '/uploads/informations/'.$fileName;
             $item->logo = $image_src;
         }
 
-        if ($request->hasFile('logo_for_admin'))
-        {
+        if ($request->hasFile('logo_for_admin')) {
             $destination = 'uploads/informations';
             $extension = $request->file('logo_for_admin')->getClientOriginalExtension();
-            $fileName = mt_rand(11111,99999).time().'.'.$extension;
+            $fileName = mt_rand(11111, 99999).time().'.'.$extension;
             $request->file('logo_for_admin')->move($destination, $fileName);
             $image_src = '/uploads/informations/'.$fileName;
             $item->logo_for_admin = $image_src;
         }
 
-        if ($request->hasFile('favicon'))
-        {
+        if ($request->hasFile('favicon')) {
             $destination = 'uploads/informations';
             $extension = $request->file('favicon')->getClientOriginalExtension();
-            $fileName = mt_rand(11111,99999).time().'.'.$extension;
+            $fileName = mt_rand(11111, 99999).time().'.'.$extension;
             $request->file('favicon')->move($destination, $fileName);
             $image_src = '/uploads/informations/'.$fileName;
             $item->favicon = $image_src;
         }
 
-        if ($request->hasFile('login_bg'))
-        {
+        if ($request->hasFile('login_bg')) {
             $destination = 'uploads/informations';
             $extension = $request->file('login_bg')->getClientOriginalExtension();
-            $fileName = mt_rand(11111,99999).time().'.'.$extension;
+            $fileName = mt_rand(11111, 99999).time().'.'.$extension;
             $request->file('login_bg')->move($destination, $fileName);
             $image_src = '/uploads/informations/'.$fileName;
             $item->login_bg = $image_src;
         }
 
-        if($item->update())
-        {
-            if(property_exists(__CLASS__, 'translates_table'))
-            {
+        if ($item->update()) {
+            if (property_exists(__CLASS__, 'translates_table')) {
                 $translates = $request->translates;
                 $translates_table_columns = Schema::getColumnListing(self::$translates_table);
 
-                foreach ($translates as $lang => $translation_data)
-                {
+                foreach ($translates as $lang => $translation_data) {
                     $item_translate = self::$translates_class::where('parent_id', $item->id)->where('lang', $lang)->first();
 
-                    foreach($translation_data as $k => $v)
-                    {
+                    foreach ($translation_data as $k => $v) {
                         /*  თუ რედაქტირების შაბლონში აღწერილია ისეთი ველი, რომლის 'name'
                          *  ატრიბუტის  შესაბამისი ველიც არ გვხვდება თარგმანების ცხრილში
                          */
-                        if(!in_array($k, $translates_table_columns))
-                        {
+                        if (! in_array($k, $translates_table_columns)) {
                             continue;
                         }
 
-                        if(!$v)
-                        {
+                        if (! $v) {
                             $item_translate->$k = $translates[self::get_required_lang()][$k];
-                        }
-                        else
-                        {
+                        } else {
                             $item_translate->$k = $v;
                         }
                     }
@@ -120,27 +111,26 @@ class Information extends Model
                 }
             }
             $item::storeLog($item, __CLASS__, self::$main_table, 'Update');
+
             return true;
         }
+
         return false;
     }
 
     public static function getItemInfo($id = 0, $local = '')
     {
-        if(property_exists(__CLASS__, 'translates_table'))
-        {
+        if (property_exists(__CLASS__, 'translates_table')) {
             return self::$current_class::join(self::$translates_table, self::$main_table.'.id', self::$translates_table.'.parent_id')
                 ->where(self::$main_table.'.id', $id)
                 ->where(self::$translates_table.'.lang', $local)
                 ->select(self::$main_table.'.*',
-                         self::$translates_table.'.title',
-                         self::$translates_table.'.address',
-                         self::$translates_table.'.slogan'
-                        )
+                    self::$translates_table.'.title',
+                    self::$translates_table.'.address',
+                    self::$translates_table.'.slogan'
+                )
                 ->first();
-        }
-        else
-        {
+        } else {
             return self::$current_class::where(self::$main_table.'.id', $id)->first();
         }
     }
