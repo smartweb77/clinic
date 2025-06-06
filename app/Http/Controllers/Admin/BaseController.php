@@ -68,7 +68,6 @@ class BaseController extends Controller
      * სტატუსის შეცვლა ან წაშლა რამოდენიმე ჩანაწერზე ერთდროულად
      *
      * @param  $request  მომხმარებლის მიერ გაგზავნილი მოთხოვნის აბსტრაქციის - Request კლასის ფსევდონიმი.
-     * @return void
      */
     protected function multi(Request $request): void
     {
