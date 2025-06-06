@@ -122,7 +122,7 @@ class ConfigurationsController extends BaseController
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             //
         ]);
 

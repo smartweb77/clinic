@@ -42,7 +42,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        $this->validate($request, [
+        $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'required',
@@ -68,7 +68,7 @@ class UserController extends Controller
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'old_password' => 'required|string|min:8',
             'new_password' => 'required|string|min:8|confirmed',
         ]);
@@ -94,7 +94,7 @@ class UserController extends Controller
 
         $this->remove_from_cart_deleted_products();
 
-        $this->validate($request, [
+        $request->validate([
             'district_id' => 'required|numeric',
             'address' => 'required',
             'payment_type' => 'required|numeric',

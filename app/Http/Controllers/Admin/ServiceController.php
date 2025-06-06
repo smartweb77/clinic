@@ -106,7 +106,7 @@ class ServiceController extends BaseController
 
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.title' => 'nullable',
             'translates.'.$this->configuration->admin_lang.'.short_description' => 'nullable',
             'translates.'.$this->configuration->admin_lang.'.description' => 'nullable',
@@ -155,7 +155,7 @@ class ServiceController extends BaseController
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.title' => 'nullable',
             'translates.'.$this->configuration->admin_lang.'.short_description' => 'nullable',
             'translates.'.$this->configuration->admin_lang.'.description' => 'nullable',

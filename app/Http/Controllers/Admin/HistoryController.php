@@ -106,7 +106,7 @@ class HistoryController extends BaseController
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.title' => 'required',
             'translates.'.$this->configuration->admin_lang.'.description' => 'required',
             'logo' => 'mimes:jpeg,jpg,png',

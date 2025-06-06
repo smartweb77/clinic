@@ -105,7 +105,7 @@ class SlidersController extends BaseController
 
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.title' => 'required',
             'image' => 'required|mimes:jpeg,jpg,png',
         ]);
@@ -151,7 +151,7 @@ class SlidersController extends BaseController
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.title' => 'required',
             'image' => 'mimes:jpeg,jpg,png',
         ]);

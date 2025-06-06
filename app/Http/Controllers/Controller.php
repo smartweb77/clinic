@@ -9,7 +9,6 @@ use App\Models\Seo;
 use Cache;
 use DB;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller as BaseController;
 use LaravelLocalization;
@@ -18,7 +17,7 @@ use View;
 
 class Controller extends BaseController
 {
-    use AuthorizesRequests, ValidatesRequests;
+    use AuthorizesRequests;
 
     protected $lang; // მიმდინარე ენა
 

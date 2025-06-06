@@ -100,7 +100,7 @@ class SeosController extends BaseController
 
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.meta_title' => 'required',
         ]);
 
@@ -145,7 +145,7 @@ class SeosController extends BaseController
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.meta_title' => 'required',
         ]);
 
