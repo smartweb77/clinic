@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Product;
@@ -113,7 +116,7 @@ class ProductsController extends Controller
         return view('client.products.in', compact('product', 'relateds'));
     }
 
-    public function rate_product(Request $request)
+    public function rate_product(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'product_id' => 'required|numeric',
@@ -153,7 +156,7 @@ class ProductsController extends Controller
     | კალათი
     |--------------------------------------------------------------------------
     */
-    public function cart()
+    public function cart(): View
     {
         $this->remove_from_cart_deleted_products();
         $districts = District::allItems($this->lang, $status_on = true);
@@ -161,7 +164,7 @@ class ProductsController extends Controller
         return view('client.products.cart', compact('districts'));
     }
 
-    public function add_to_cart(Request $request)
+    public function add_to_cart(Request $request): JsonResponse
     {
         if ($request->ajax() && $request->qty && $request->id) {
             $product = Product::find($request->id);
@@ -214,7 +217,7 @@ class ProductsController extends Controller
         }
     }
 
-    public function remove_from_cart(Request $request, $id)
+    public function remove_from_cart(Request $request, $id): RedirectResponse
     {
         $product = Product::findOrFail($id);
         $cart = session()->get('cart');
@@ -231,7 +234,7 @@ class ProductsController extends Controller
         return redirect()->back();
     }
 
-    public function update_cart(Request $request)
+    public function update_cart(Request $request): RedirectResponse
     {
         $cart = session()->get('cart');
 
@@ -254,7 +257,7 @@ class ProductsController extends Controller
         return redirect()->back()->with('cart_updated', true);
     }
 
-    public function move_wishlist_to_cart(Request $request)
+    public function move_wishlist_to_cart(Request $request): RedirectResponse
     {
         $cart = session()->get('cart');
 
@@ -305,7 +308,7 @@ class ProductsController extends Controller
         return redirect()->route('cart')->with('cart_updated', true);
     }
 
-    public function clear_cart()
+    public function clear_cart(): RedirectResponse
     {
         if (Session::has('cart')) {
             Session::forget('cart');
@@ -349,12 +352,12 @@ class ProductsController extends Controller
     | სურვილების სია
     |--------------------------------------------------------------------------
     */
-    public function wishlist()
+    public function wishlist(): View
     {
         return view('client.products.wishlist');
     }
 
-    public function add_to_wishlist(Request $request)
+    public function add_to_wishlist(Request $request): JsonResponse
     {
         if ($request->ajax()) {
             $wishlist = explode(',', Cookie::get('wishlist'));
@@ -375,7 +378,7 @@ class ProductsController extends Controller
         }
     }
 
-    public function remove_from_wishlist($id)
+    public function remove_from_wishlist($id): RedirectResponse
     {
         $wishlist = explode(',', Cookie::get('wishlist'));
 
@@ -393,7 +396,7 @@ class ProductsController extends Controller
         return redirect()->back();
     }
 
-    public function clear_wishlist()
+    public function clear_wishlist(): RedirectResponse
     {
         Cookie::queue(Cookie::forget('wishlist'));
 
@@ -405,7 +408,7 @@ class ProductsController extends Controller
     | ბუღალტერია :))
     |--------------------------------------------------------------------------
     */
-    public function check_code(Request $request)
+    public function check_code(Request $request): JsonResponse
     {
         if ($request->ajax()) {
             $sale = $this->get_sale($request->code);

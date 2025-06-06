@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Order;
@@ -25,7 +27,7 @@ class UserController extends Controller
         $this->middleware(['auth'])->except(['success_tbc']);
     }
 
-    public function profile(Request $request)
+    public function profile(Request $request): View
     {
         if ($request->has('order_id')) {
             $order = Order::findOrFail($request->get('order_id'));
@@ -36,7 +38,7 @@ class UserController extends Controller
         }
     }
 
-    public function update_personal_info(Request $request)
+    public function update_personal_info(Request $request): RedirectResponse
     {
         $user = Auth::user();
 
@@ -56,7 +58,7 @@ class UserController extends Controller
         return redirect()->back();
     }
 
-    public function update_password(Request $request)
+    public function update_password(Request $request): RedirectResponse
     {
         $user = Auth::user();
 
@@ -245,7 +247,7 @@ class UserController extends Controller
         return $order_id;
     }
 
-    public function success_tbc(Request $request)
+    public function success_tbc(Request $request): RedirectResponse
     {
         // ტრანზაქცია ვერ მოიძებნა
         if (empty($request['trans_id'])) {

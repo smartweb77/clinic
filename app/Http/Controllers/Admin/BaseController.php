@@ -32,7 +32,7 @@ class BaseController extends Controller
      * @param  $request  მომხმარებლის მიერ გაგზავნილი მოთხოვნის აბსტრაქციის - Request კლასის ფსევდონიმი.
      * @return status : 1 => წარმატება,  2 => შეცდომა, 5 => უფლება არ აქვს
      */
-    protected function status(Request $request)
+    protected function status(Request $request): status
     {
         $id = $request->id;
         $table = $request->table;
@@ -70,7 +70,7 @@ class BaseController extends Controller
      * @param  $request  მომხმარებლის მიერ გაგზავნილი მოთხოვნის აბსტრაქციის - Request კლასის ფსევდონიმი.
      * @return void
      */
-    protected function multi(Request $request)
+    protected function multi(Request $request): void
     {
         if (! $request->id || ! count($request->id)) {
             return redirect()->back();
@@ -132,7 +132,7 @@ class BaseController extends Controller
      * @param  $request  მომხმარებლის მიერ გაგზავნილი მოთხოვნის აბსტრაქციის - Request კლასის ფსევდონიმი.
      * @return status : 1 => წარმატება,  2 => შეცდომა, 5 => უფლება არ აქვს
      */
-    protected function remove(Request $request)
+    protected function remove(Request $request): status
     {
         $id = $request->id;
         $table = $request->table;
@@ -204,7 +204,7 @@ class BaseController extends Controller
      * @param  $request  მომხმარებლის მიერ გაგზავნილი მოთხოვნის აბსტრაქციის - Request კლასის ფსევდონიმი.
      * @return status : 1 => წარმატება,  2 => შეცდომა, 5 => უფლება არ აქვს
      */
-    protected function ordering(Request $request)
+    protected function ordering(Request $request): status
     {
         $orders = json_decode($request->ordering);
 
@@ -243,7 +243,7 @@ class BaseController extends Controller
      * @param  $request  მომხმარებლის მიერ გაგზავნილი მოთხოვნის აბსტრაქციის - Request კლასის ფსევდონიმი.
      * @return status : 1 => წარმატება,  2 => შეცდომა, 5 => უფლება არ აქვს
      */
-    protected function remove_file(Request $request)
+    protected function remove_file(Request $request): status
     {
         $id = $request->id;
         $column = $request->column;
@@ -296,7 +296,7 @@ class BaseController extends Controller
      * @param  $request  მომხმარებლის მიერ გაგზავნილი მოთხოვნის აბსტრაქციის - Request კლასის ფსევდონიმი.
      * @return status : 1 => წარმატება,  2 => შეცდომა, 5 => უფლება არ აქვს
      */
-    protected function remove_image_from_gallery(Request $request)
+    protected function remove_image_from_gallery(Request $request): status
     {
         $image_id = $request->image_id;
         $gallery_table = $request->gallery_table;
@@ -347,7 +347,7 @@ class BaseController extends Controller
      * @param  $request  მომხმარებლის მიერ გაგზავნილი მოთხოვნის აბსტრაქციის - Request კლასის ფსევდონიმი.
      * @return status : 1 => წარმატება,  2 => შეცდომა, 5 => უფლება არ აქვს
      */
-    protected function remove_video_from_gallery(Request $request)
+    protected function remove_video_from_gallery(Request $request): status
     {
         $video_id = $request->video_id;
         $gallery_table = $request->gallery_table;

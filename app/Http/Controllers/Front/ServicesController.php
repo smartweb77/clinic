@@ -2,27 +2,29 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\View\View;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\Request;
 
 class ServicesController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $services = Service::allItems($this->lang, $status_on = true);
 
         return view('client.services.index', compact('services'));
     }
 
-    public function in($id)
+    public function in($id): View
     {
         $service = Service::getItemInfo($id, $this->lang);
 
         return view('client.services.in', compact('service'));
     }
 
-    public function search(Request $request)
+    public function search(Request $request): Response
     {
         if ($request->keyword) {
             $services = Service::allItems($this->lang, $status_on = true, $main = false, $searh = $request->keyword);

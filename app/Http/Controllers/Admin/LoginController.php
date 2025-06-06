@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use App\Models\Admin;
 use App\Models\Information;
 use DB;
@@ -10,14 +13,14 @@ use Session;
 
 class LoginController extends BaseController
 {
-    public function index()
+    public function index(): View
     {
         $information = Information::getItemInfo(3, $this->configuration->admin_lang);
 
         return view('Administrator.login.index', compact('information'));
     }
 
-    public function singin(Request $request)
+    public function singin(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'password' => 'required',
@@ -45,7 +48,7 @@ class LoginController extends BaseController
         return redirect()->route('AdminMainPage');
     }
 
-    public function logout(Request $request)
+    public function logout(Request $request): JsonResponse
     {
         if (Admin::isLogin()) {
             Session::forget('admin');

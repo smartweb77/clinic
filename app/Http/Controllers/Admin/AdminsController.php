@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use App\Models\Admin;
 use Illuminate\Http\Request;
 
@@ -14,7 +17,7 @@ class AdminsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(): View
     {
         $this->data['admins'] = Admin::GetAll();
 
@@ -26,7 +29,7 @@ class AdminsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function create()
+    public function create(): View
     {
         return view('Administrator.admins.add');
     }
@@ -36,7 +39,7 @@ class AdminsController extends BaseController
      *
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'name' => 'required',
@@ -65,7 +68,7 @@ class AdminsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(int $id)
     {
         $admin = Admin::find($id);
 
@@ -84,7 +87,7 @@ class AdminsController extends BaseController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, int $id): RedirectResponse
     {
         $count = Admin::where('id', '!=', $id)->where('email', $request->email)->count();
 
@@ -130,7 +133,7 @@ class AdminsController extends BaseController
         }
     }
 
-    public function remove(Request $request)
+    public function remove(Request $request): JsonResponse
     {
         $id = $request->id;
         $admin = Admin::find($id);

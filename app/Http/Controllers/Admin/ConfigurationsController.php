@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Http\RedirectResponse;
 use App\Models\Configuration;
 use Cache;
 use DB;
@@ -113,7 +114,7 @@ class ConfigurationsController extends BaseController
         return view($this->views_folder.'.edit', $this->data);
     }
 
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
         $item = $this->model->find(1);
 
@@ -138,7 +139,7 @@ class ConfigurationsController extends BaseController
         return redirect()->route('Edit'.$this->routes_suffix);
     }
 
-    public function remove_cache_key($key)
+    public function remove_cache_key($key): RedirectResponse
     {
         Cache::forget($key);
         DB::table('caches')->where('module', $key)->delete();

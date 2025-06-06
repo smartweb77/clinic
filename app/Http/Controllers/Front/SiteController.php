@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use DB;
@@ -9,7 +10,7 @@ use Illuminate\Http\Request;
 
 class SiteController extends Controller
 {
-    public function subscribe(Request $request)
+    public function subscribe(Request $request): JsonResponse
     {
         if ($request->ajax()) {
             $item = DB::table('subscribes')->select('id')->where('email', $request->email)->first();

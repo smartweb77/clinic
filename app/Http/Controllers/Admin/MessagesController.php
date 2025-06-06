@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use App\Models\Message;
 use Illuminate\Http\Request;
 use Session;
@@ -33,14 +36,14 @@ class MessagesController extends BaseController
         $this->main_table = 'messages';
     }
 
-    public function index()
+    public function index(): View
     {
         $this->data['items'] = $this->model->allItems();
 
         return view($this->views_folder.'.index', $this->data);
     }
 
-    public function remove($id)
+    public function remove($id): RedirectResponse
     {
         $item = $this->model::find($id);
 
@@ -54,7 +57,7 @@ class MessagesController extends BaseController
         return redirect()->back();
     }
 
-    public function seen(Request $request)
+    public function seen(Request $request): JsonResponse
     {
         $id = $request->id;
         $item = $this->model::find($id);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\Http\RedirectResponse;
 use App\Models\History;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -97,7 +98,7 @@ class HistoryController extends BaseController
         return view($this->views_folder.'.edit', $this->data);
     }
 
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
         $item = $this->model->find(1);
 

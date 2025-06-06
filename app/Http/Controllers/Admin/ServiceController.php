@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
@@ -81,7 +83,7 @@ class ServiceController extends BaseController
 
     protected $required_columns = [''];
 
-    public function index()
+    public function index(): View
     {
         $this->data['listing_columns'] = ['sort', 'status', 'image', 'title']; // <th> ელემენტები
         $this->data['items'] = $this->model->allItems($this->configuration->admin_lang, $status_on = false);
@@ -92,7 +94,7 @@ class ServiceController extends BaseController
         return view($this->views_folder.'.index', $this->data);
     }
 
-    public function create()
+    public function create(): View
     {
         $this->data['routes_suffix'] = $this->routes_suffix;
         $this->data['main_columns'] = $this->main_columns();
@@ -102,7 +104,7 @@ class ServiceController extends BaseController
         return view($this->views_folder.'.add', $this->data);
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $this->validate($request, [
             'translates.'.$this->configuration->admin_lang.'.title' => 'nullable',
@@ -145,7 +147,7 @@ class ServiceController extends BaseController
         return view($this->views_folder.'.edit', $this->data);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id): RedirectResponse
     {
         $item = $this->model->find($id);
 

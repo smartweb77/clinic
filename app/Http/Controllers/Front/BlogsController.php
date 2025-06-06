@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\News;
 use App\Models\NewsCategories;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 
 class BlogsController extends Controller
 {
-    public function index(Request $request)
+    public function index(Request $request): View
     {
         $where_in = [];
         $cat_title = '';

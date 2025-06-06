@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\History;
 
 class HistoryController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $history = History::getItemInfo(1, $this->lang);
 

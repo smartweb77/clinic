@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\View\View;
 use App\Http\Controllers\Controller;
 use App\Models\Doctor;
 use App\Models\News;
@@ -10,7 +11,7 @@ use App\Models\Slider;
 
 class IndexController extends Controller
 {
-    public function index()
+    public function index(): View
     {
         $sliders = Slider::allItems($this->lang, $status_on = true);
         $services = Service::allItems($this->lang, $status_on = true, $main = true);
