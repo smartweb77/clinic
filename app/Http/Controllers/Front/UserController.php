@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Front;
 
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Order;
@@ -17,14 +19,21 @@ use Mail;
 use PDF;
 use Session;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
     public $pass = 'mulgazanzari';
 
     public function __construct(Request $request)
     {
         parent::__construct($request);
-        $this->middleware(['auth'])->except(['success_tbc']);
+
+    }
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(['auth'], except: ['success_tbc']),
+        ];
     }
 
     public function profile(Request $request): View
