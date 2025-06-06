@@ -109,7 +109,7 @@ class TextpagesController extends BaseController
 
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.title' => 'required',
             'translates.'.$this->configuration->admin_lang.'.description' => 'required',
             'image' => 'mimes:jpeg,jpg,png',
@@ -159,7 +159,7 @@ class TextpagesController extends BaseController
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.title' => 'required',
             'translates.'.$this->configuration->admin_lang.'.description' => 'required',
             'image' => 'mimes:jpeg,jpg,png',

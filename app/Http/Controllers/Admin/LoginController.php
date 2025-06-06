@@ -22,7 +22,7 @@ class LoginController extends BaseController
 
     public function singin(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'password' => 'required',
             'email' => 'required|email',
         ]);

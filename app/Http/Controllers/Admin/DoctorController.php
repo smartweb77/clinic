@@ -105,7 +105,7 @@ class DoctorController extends BaseController
 
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.full_name' => 'required',
             'translates.'.$this->configuration->admin_lang.'.specialty' => 'required',
             'translates.'.$this->configuration->admin_lang.'.education' => 'required',
@@ -154,7 +154,7 @@ class DoctorController extends BaseController
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.full_name' => 'required',
             'translates.'.$this->configuration->admin_lang.'.specialty' => 'required',
             'translates.'.$this->configuration->admin_lang.'.education' => 'required',

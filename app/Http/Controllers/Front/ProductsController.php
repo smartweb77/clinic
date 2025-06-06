@@ -118,7 +118,7 @@ class ProductsController extends Controller
 
     public function rate_product(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'product_id' => 'required|numeric',
             'stars' => 'required|numeric|min:1|max:5',
         ]);

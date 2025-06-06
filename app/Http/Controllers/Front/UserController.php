@@ -12,19 +12,28 @@ use DB;
 use Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 use Mail;
 use PDF;
 use Session;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
     public $pass = 'mulgazanzari';
 
     public function __construct(Request $request)
     {
         parent::__construct($request);
-        $this->middleware(['auth'])->except(['success_tbc']);
+
+    }
+
+    public static function middleware(): array
+    {
+        return [
+            new Middleware(['auth'], except: ['success_tbc']),
+        ];
     }
 
     public function profile(Request $request): View
@@ -42,7 +51,7 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        $this->validate($request, [
+        $request->validate([
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'required',
@@ -68,7 +77,7 @@ class UserController extends Controller
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'old_password' => 'required|string|min:8',
             'new_password' => 'required|string|min:8|confirmed',
         ]);
@@ -94,7 +103,7 @@ class UserController extends Controller
 
         $this->remove_from_cart_deleted_products();
 
-        $this->validate($request, [
+        $request->validate([
             'district_id' => 'required|numeric',
             'address' => 'required',
             'payment_type' => 'required|numeric',

@@ -8,18 +8,13 @@ use App\Models\Product;
 use App\Models\Seo;
 use Cache;
 use DB;
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
 use LaravelLocalization;
 use Session;
 use View;
 
-class Controller extends BaseController
+class Controller
 {
-    use AuthorizesRequests, ValidatesRequests;
-
     protected $lang; // მიმდინარე ენა
 
     protected $seo_routes; // ის მარშრუტები, რომლებსაც ჭირდება SEO ტეგები

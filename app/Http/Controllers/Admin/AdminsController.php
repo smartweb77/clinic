@@ -35,7 +35,7 @@ class AdminsController extends BaseController
      */
     public function store(Request $request): RedirectResponse
     {
-        $this->validate($request, [
+        $request->validate([
             'name' => 'required',
             'surname' => 'required',
             'password' => 'required',
@@ -92,13 +92,13 @@ class AdminsController extends BaseController
         }
 
         if ($admin->role == 1) {
-            $this->validate($request, [
+            $request->validate([
                 'name' => 'required',
                 'surname' => 'required',
                 'email' => 'required|email',
             ]);
         } else {
-            $this->validate($request, [
+            $request->validate([
                 'name' => 'required',
                 'surname' => 'required',
                 'email' => 'required|email',

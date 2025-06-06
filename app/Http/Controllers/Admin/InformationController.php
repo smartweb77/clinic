@@ -115,7 +115,7 @@ class InformationController extends BaseController
             return redirect()->back();
         }
 
-        $this->validate($request, [
+        $request->validate([
             'translates.'.$this->configuration->admin_lang.'.title' => 'required',
             'translates.*.slogan' => 'string|max:90',
             'logo' => 'mimes:jpeg,jpg,png,svg',
