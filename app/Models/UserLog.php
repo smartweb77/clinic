@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,7 +20,7 @@ class UserLog extends Model
         'action',
     ];
 
-    public function admin()
+    public function admin(): BelongsTo
     {
         return $this->belongsTo(\App\Models\Admin::class);
     }

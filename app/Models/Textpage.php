@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Traits\ActionLog;
 use DB;
 use Illuminate\Database\Eloquent\Model;
@@ -28,12 +29,12 @@ class Textpage extends Model
         return DB::table('configurations')->select('admin_lang')->first()->admin_lang;
     }
 
-    public function images()
+    public function images(): HasMany
     {
         return $this->hasMany(\App\Models\TextpagesPhoto::class, 'parent_id');
     }
 
-    public function videos()
+    public function videos(): HasMany
     {
         return $this->hasMany(\App\Models\TextpagesVideo::class, 'parent_id')->orderBy('id', 'DESC');
     }
