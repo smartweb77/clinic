@@ -15,7 +15,6 @@ use View;
 
 class Controller
 {
-
     protected $lang; // მიმდინარე ენა
 
     protected $seo_routes; // ის მარშრუტები, რომლებსაც ჭირდება SEO ტეგები

@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\Routing\Controllers\HasMiddleware;
-use Illuminate\Routing\Controllers\Middleware;
 use App\Http\Controllers\Controller;
 use App\Models\District;
 use App\Models\Order;
@@ -14,6 +12,8 @@ use DB;
 use Hash;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 use Mail;
 use PDF;
