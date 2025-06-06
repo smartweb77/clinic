@@ -2,74 +2,69 @@
 
 namespace App\Http\Controllers\Front;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller as Controller;
-
-use DB;
-use PDF;
-use App;
-use Mail;
-use Auth;
-use Hash;
-use Session;
-use Carbon\Carbon;
+use App\Http\Controllers\Controller;
+use App\Models\District;
 use App\Models\Order;
 use App\Models\Product;
-use App\Models\District;
-use LaravelLocalization;
-use App\Http\Controllers\Front\TbcPayProcessor;
+use Auth;
+use Carbon\Carbon;
+use DB;
+use Hash;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Mail;
+use PDF;
+use Session;
 
-class UserController extends Controller 
+class UserController extends Controller
 {
     public $pass = 'mulgazanzari';
-    
-    public function __construct(Request $request) 
+
+    public function __construct(Request $request)
     {
         parent::__construct($request);
         $this->middleware(['auth'])->except(['success_tbc']);
     }
 
-    public function profile(Request $request) 
+    public function profile(Request $request): View
     {
-        if($request->has('order_id'))
-        {
-            $order = Order::findOrFail($request->get('order_id'));            
-            return view('client.user.order',compact('order'));
-        }
-        else
-        {
+        if ($request->has('order_id')) {
+            $order = Order::findOrFail($request->get('order_id'));
+
+            return view('client.user.order', compact('order'));
+        } else {
             return view('client.user.profile');
-        }        
+        }
     }
-    
-    public function update_personal_info(Request $request) 
+
+    public function update_personal_info(Request $request): RedirectResponse
     {
         $user = Auth::user();
-        
+
         $this->validate($request, [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
             'phone' => 'required',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
         ]);
 
         $update = $user->update($request->except(['password', 'password_confirmation']));
 
-        if($update) 
-        {
+        if ($update) {
             $request->session()->flash('info_updated', trans('site.personal_data_update_success'));
-        } 
-        
+        }
+
         return redirect()->back();
     }
 
-    public function update_password(Request $request)
+    public function update_password(Request $request): RedirectResponse
     {
         $user = Auth::user();
 
-        if(!Hash::check($request->old_password, $user->password))
-        {
-            $request->session()->flash( 'old_password_error' , trans('site.old_password_error'));
+        if (! Hash::check($request->old_password, $user->password)) {
+            $request->session()->flash('old_password_error', trans('site.old_password_error'));
+
             return redirect()->back();
         }
 
@@ -77,72 +72,62 @@ class UserController extends Controller
             'old_password' => 'required|string|min:8',
             'new_password' => 'required|string|min:8|confirmed',
         ]);
-        
+
         $password_updated = $user->update([
-            'password' => Hash::make($request->new_password)
+            'password' => Hash::make($request->new_password),
         ]);
 
-        if($password_updated) 
-        {
+        if ($password_updated) {
             $request->session()->flash('password_updated', true);
-        } 
-        else 
-        {
+        } else {
             $request->session()->flash('password_updated', false);
         }
-        
-        return redirect()->back();        
+
+        return redirect()->back();
     }
-    
+
     public function post_checkout(Request $request)
     {
-        if(!Session::has('cart'))
-        {
+        if (! Session::has('cart')) {
             return redirect()->route('index');
         }
-        
+
         $this->remove_from_cart_deleted_products();
-        
+
         $this->validate($request, [
             'district_id' => 'required|numeric',
             'address' => 'required',
-            'payment_type' => 'required|numeric',                
-        ]); 
+            'payment_type' => 'required|numeric',
+        ]);
 
         $district = DB::table('districts')->select('delivery_price')
-                ->where('id', $request->district_id)->first();
+            ->where('id', $request->district_id)->first();
 
-        if($district)
-        {
+        if ($district) {
             $delivery_price = $district->delivery_price;
+        } else {
+            return redirect()->back();
         }
-        else
-        {
-            return redirect()->back(); 
-        }            
-        
+
         $percent = 0;
-        
+
         // შეიყვანა ფასდაკლების კოდი
-        if($request->coupon)
-        {
-            $sale = DB::table('coupons')->where('code',$request->coupon)->first();
-            
-            if($sale)
-            {
+        if ($request->coupon) {
+            $sale = DB::table('coupons')->where('code', $request->coupon)->first();
+
+            if ($sale) {
                 $percent = $sale->percent;
             }
         }
-        
+
         $total = $this->get_cart_prices($percent, $delivery_price);
-        
+
         // ონლაინ გადახდა
-        if($request->payment_type == 1)
-        {
+        if ($request->payment_type == 1) {
             return redirect()->back();
             /*
             $payment = new TbcPayProcessor(base_path() . '/tbc/cert.pem', 'mulgazanzari', $_SERVER['REMOTE_ADDR']);
-            $payment->amount = number_format($total, 2, '.', '') * 100; // თეთრი  
+            $payment->amount = number_format($total, 2, '.', '') * 100; // თეთრი
             $payment->currency = 981; // 981 = GEL
             $payment->description = 'Your product description, will be shown to client on card processing page!';
             $payment->language = 'GE'; // ინტერფეისის ენა
@@ -159,34 +144,32 @@ class UserController extends Controller
             $order_data['sale_percent'] = $percent;
             $order_data['address'] = $request->address;
             $order_data['total'] = $total;
-            $order_data['created_at'] = Carbon::now();   
+            $order_data['created_at'] = Carbon::now();
             $order_data['delivery'] = $request->delivery;
             $order_data['delivery_price'] = $delivery_price;
             $order_data['transaction_id'] = $tbc_transaction['TRANSACTION_ID']; // TBC ტრანზაქციის id
             $order_data['pay_status'] = 3; // გადახდის საწყისი ეტაპი
 
-            if ($this->insertOrderGetID($order_data)) 
+            if ($this->insertOrderGetID($order_data))
             {
                 // უბრალოდ გადავიდა გადახდის გვერდზე, ტრანზაქციის შენახვა ფაილში
                 // $txt = $tbc_transaction['TRANSACTION_ID'].'|'.Auth::user()->first_name . ' ' . Auth::user()->last_name.'|'.Auth::user()->phone . '|' . date('Y-m-d H:i:s') . "\n";
-                //file_put_contents('../public_html/uploads/tbc/started_transactions.txt', $txt, FILE_APPEND); 
-                
+                //file_put_contents('../public_html/uploads/tbc/started_transactions.txt', $txt, FILE_APPEND);
+
                 return view('tbc.pay', compact('tbc_transaction'));
-            } 
-            else 
+            }
+            else
             {
                 return redirect('/cart')->with('order_sent', false);
             }
-             * 
+             *
              */
-        }
-        else if($request->payment_type == 2) // საბანკო გადარიცხვა
-        {
+        } elseif ($request->payment_type == 2) { // საბანკო გადარიცხვა
             $invoice_data = [
                 'address' => $request->address,
-                'delivery_price' => $delivery_price
+                'delivery_price' => $delivery_price,
             ];
-            
+
             $order_data = [];
             $order_code = substr(uniqid(), 0, 11);
             $order_data['user_id'] = Auth::user()->id;
@@ -198,30 +181,29 @@ class UserController extends Controller
             $order_data['sale_percent'] = $percent;
             $order_data['address'] = $request->address;
             $order_data['total'] = $total['total'];
-            $order_data['year'] = date('Y');   
-            $order_data['month'] = date('m');   
-            $order_data['day'] = date('d');   
-            $order_data['created_at'] = Carbon::now();   
+            $order_data['year'] = date('Y');
+            $order_data['month'] = date('m');
+            $order_data['day'] = date('d');
+            $order_data['created_at'] = Carbon::now();
             $order_data['delivery'] = $request->delivery;
             $order_data['delivery_price'] = $delivery_price;
-            
-            if ($this->insertOrderGetID($order_data, $total['prices'])) 
-            {
+
+            if ($this->insertOrderGetID($order_data, $total['prices'])) {
                 $invoice_data = [
                     'address' => $request->address,
                     'delivery_price' => $delivery_price,
-                    'order_code' => $order_code                        
+                    'order_code' => $order_code,
                 ];
-             
-                //$pdf = PDF::loadView('client.products.invoice', $invoice_data, ['format' => 'A4-P']);
+
+                // $pdf = PDF::loadView('client.products.invoice', $invoice_data, ['format' => 'A4-P']);
                 // $pdf->save('../public_html/uploads/invoices/'.$order_code.'.pdf');
-                //return $pdf->download($order_code.'.pdf');
-                
+                // return $pdf->download($order_code.'.pdf');
+
                 /*
                 $data = [
                     'order' => $order_data
                 ];
-                
+
                 //if(request()->ip() === '188.129.146.186')
                 //{
                     Mail::send('emails.order', $data,  function($message) use ($data){
@@ -234,88 +216,78 @@ class UserController extends Controller
                     });
                 // }
                 */
-                
+
                 Session::forget('cart');
 
                 return redirect('/profile')->with(['order_sent' => true, 'order_code' => $order_code]);
-            } 
-            else 
-            {
+            } else {
                 return redirect('/cart')->with('order_sent', false);
             }
-        } 
-        else
-        {
+        } else {
             return redirect()->back();
         }
     }
-    
+
     public function insertOrderGetID($order_data, $item_prices)
     {
         $order_id = DB::table('orders')->insertGetId($order_data);
 
-        foreach(Session::get('cart') as $prod_id => $item_data)
-        {
+        foreach (Session::get('cart') as $prod_id => $item_data) {
             $orderProduct = [
-                 'order_id' => $order_id ,
-                 'product_id' => $prod_id,
-                 'unit_price' => $item_prices[$prod_id],
-                 'price' => $item_prices[$prod_id] * $item_data['qty'],
-                 'qty' => $item_data['qty'],
+                'order_id' => $order_id,
+                'product_id' => $prod_id,
+                'unit_price' => $item_prices[$prod_id],
+                'price' => $item_prices[$prod_id] * $item_data['qty'],
+                'qty' => $item_data['qty'],
             ];
 
             DB::table('order_products')->insert($orderProduct);
-        }  
-        
-        return $order_id;        
+        }
+
+        return $order_id;
     }
-    
-    public function success_tbc(Request $request)
+
+    public function success_tbc(Request $request): RedirectResponse
     {
         // ტრანზაქცია ვერ მოიძებნა
-        if (empty($request['trans_id']))
-        {
+        if (empty($request['trans_id'])) {
             return redirect()->route('fail_tbc');
         }
-        
+
         $order = Order::where('transaction_id', $request['trans_id'])->first();
 
-        if (empty($order))
-        {
+        if (empty($order)) {
             return redirect()->route('fail_tbc');
         }
 
-        $payment = new TbcPayProcessor(base_path() . '/tbc/cert.pem', 'mulgazanzari', $_SERVER['REMOTE_ADDR']);
-        
+        $payment = new TbcPayProcessor(base_path().'/tbc/cert.pem', 'mulgazanzari', $_SERVER['REMOTE_ADDR']);
+
         $tbc_result = $payment->get_transaction_result($request['trans_id']);
-        
+
         // ტრანზაქციის შენახვა ფაილში
-        //$txt = $request['trans_id'].'|'.$request->ip().'|'.$user->first_name . ' ' . 
-                //$user->last_name.'|'.$user->phone.'|'.$tbc_result['CARD_NUMBER'].'|'.$tbc_result['RESULT'] ."\n";
-        
+        // $txt = $request['trans_id'].'|'.$request->ip().'|'.$user->first_name . ' ' .
+        // $user->last_name.'|'.$user->phone.'|'.$tbc_result['CARD_NUMBER'].'|'.$tbc_result['RESULT'] ."\n";
+
         // შეავსო ინფორმაცია და ბანკიდანაც მოვიდა პასუხი
-        //file_put_contents('../public_html/uploads/tbc/finished_transactions.txt', $txt, FILE_APPEND); 
+        // file_put_contents('../public_html/uploads/tbc/finished_transactions.txt', $txt, FILE_APPEND);
         // ტრანზაქციის შენახვა ფაილში
 
         // წარუმატებელი გადახდა
-        if ($tbc_result['RESULT'] != 'OK' )
-        {
+        if ($tbc_result['RESULT'] != 'OK') {
             $order->pay_status = 2;
             $order->update();
-            
+
             return redirect('/cart')->with('order_sent', false);
-        }
-        else // წარმატებული გადახდა
-        {
+        } else { // წარმატებული გადახდა
             $order->pay_status = 1;
             $order->update();
-            
+
             Session::forget('cart');
 
             return redirect('/profile')->with('order_sent', true);
         }
     }
-    
+
     public function fail_tbc()
     {
         return 'სისტემური შეცდომა ონლაინ-გადახდისას';

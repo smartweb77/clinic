@@ -1,31 +1,30 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\LoginController;
-use App\Http\Controllers\Admin\AdminIndexController;
-use App\Http\Controllers\Admin\SlidersController;
-use App\Http\Controllers\Admin\BaseController;
-use App\Http\Controllers\Admin\NewsesController;
-use App\Http\Controllers\Admin\NewsController;
-use App\Http\Controllers\Admin\TextpagesController;
-use App\Http\Controllers\Admin\ConfigurationsController;
-use App\Http\Controllers\Admin\InformationController;
-use App\Http\Controllers\Admin\SeosController;
-use App\Http\Controllers\Admin\LogsController;
-use App\Http\Controllers\Admin\ChangelogsController;
-use App\Http\Controllers\Admin\MessagesController;
-use App\Http\Controllers\Admin\AdminsController;
 use App\Http\Controllers\Admin\ActionLogController;
-use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\AdminIndexController;
+use App\Http\Controllers\Admin\AdminsController;
+use App\Http\Controllers\Admin\BaseController;
+use App\Http\Controllers\Admin\ChangelogsController;
+use App\Http\Controllers\Admin\ConfigurationsController;
 use App\Http\Controllers\Admin\DoctorController;
 use App\Http\Controllers\Admin\HistoryController;
-
-use App\Http\Controllers\Front\IndexController;
-use App\Http\Controllers\Front\ServicesController;
-use App\Http\Controllers\Front\DoctorsController;
-use App\Http\Controllers\Front\NewsController as ClientNews;
-use App\Http\Controllers\Front\HistoryController as ClientHistory;
+use App\Http\Controllers\Admin\InformationController;
+use App\Http\Controllers\Admin\LoginController;
+use App\Http\Controllers\Admin\LogsController;
+use App\Http\Controllers\Admin\MessagesController;
+use App\Http\Controllers\Admin\NewsController;
+use App\Http\Controllers\Admin\NewsesController;
+use App\Http\Controllers\Admin\SeosController;
+use App\Http\Controllers\Admin\ServiceController;
+use App\Http\Controllers\Admin\SlidersController;
+use App\Http\Controllers\Admin\TextpagesController;
 use App\Http\Controllers\Front\ContactController;
+use App\Http\Controllers\Front\DoctorsController;
+use App\Http\Controllers\Front\HistoryController as ClientHistory;
+use App\Http\Controllers\Front\IndexController;
+use App\Http\Controllers\Front\NewsController as ClientNews;
+use App\Http\Controllers\Front\ServicesController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,15 +37,14 @@ use App\Http\Controllers\Front\ContactController;
 |
 */
 
-
-Route::get('/clear-cache', function() {
+Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');
     Artisan::call('config:clear');
-    
-    return "Done - cache are cleared";
+
+    return 'Done - cache are cleared';
 });
 
-Route::group(['prefix' => LaravelLocalization::setLocale(),'middleware' => [ 'localeSessionRedirect', 'localizationRedirect', 'localeViewPath' ]], function(){
+Route::prefix(LaravelLocalization::setLocale())->middleware('localeSessionRedirect', 'localizationRedirect', 'localeViewPath')->group(function () {
 
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::get('/services', [ServicesController::class, 'index'])->name('services');
@@ -67,7 +65,7 @@ Route::get('/admin/login', [LoginController::class, 'index'])->middleware('Admin
 Route::post('/admin/singin', [LoginController::class, 'singin'])->middleware('AdminLogin')->name('LoginAdmin');
 Route::post('/admin/logout', [LoginController::class, 'logout'])->name('LogoutAdmin');
 
-Route::middleware(['admin','check_permission'])->group(function () {
+Route::middleware(['admin', 'check_permission'])->group(function () {
 
     Route::prefix('admin')->group(function () {
 
@@ -82,7 +80,7 @@ Route::middleware(['admin','check_permission'])->group(function () {
         Route::post('status', [BaseController::class, 'status'])->name('Status');
         // წაშლა
         Route::post('/remove', [BaseController::class, 'remove'])->name('Remove');
-         // სტატუსის შეცვლა რამოდენიმე ელემენტზე ერთდროულად ან მათი წაშლა
+        // სტატუსის შეცვლა რამოდენიმე ელემენტზე ერთდროულად ან მათი წაშლა
         Route::post('/multi', [BaseController::class, 'multi'])->name('Multi');
         // თანმიმდევრობის შეცვლა ჩამონათვალის გვერდზე
         Route::post('/ordering', [BaseController::class, 'ordering'])->name('Ordering');
@@ -128,7 +126,7 @@ Route::middleware(['admin','check_permission'])->group(function () {
 
         Route::prefix('newses')->group(function () {
 
-            Route::get('/', [NewsesController::class,'index'])->name('Newses');
+            Route::get('/', [NewsesController::class, 'index'])->name('Newses');
 
             // სიხლეები
             Route::prefix('/news')->group(function () {

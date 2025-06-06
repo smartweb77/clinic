@@ -6,6 +6,5 @@ return [
     'doctors' => 'Doctors',
     'news' => 'News',
     'history' => 'History',
-    'contact' => 'Contact'
+    'contact' => 'Contact',
 ];
-

@@ -2,59 +2,60 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-
-use DB;
-use Session;
 use App\Models\Admin;
 use App\Models\Information;
+use DB;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Session;
 
 class LoginController extends BaseController
 {
-    public function index () 
+    public function index(): View
     {
         $information = Information::getItemInfo(3, $this->configuration->admin_lang);
-    	return view('Administrator.login.index',  compact('information'));
+
+        return view('Administrator.login.index', compact('information'));
     }
 
-    public function singin( Request $request)
+    public function singin(Request $request): RedirectResponse
     {
-    	$this->validate( $request , [
+        $this->validate($request, [
             'password' => 'required',
-            'email' => 'required|email'
-    	]);
+            'email' => 'required|email',
+        ]);
 
-    	$admin = Admin::where('email' , $request->email)->where('password', sha1($request->password))->first();
+        $admin = Admin::where('email', $request->email)->where('password', sha1($request->password))->first();
 
-    	if(!$admin)
-        {
+        if (! $admin) {
             return redirect()->back();
-    	}
-        
+        }
+
         $admin->last_login = date('Y-m-d H:i:s');
         $admin->update();
 
-    	Session::put('admin' , $admin);
-        
+        Session::put('admin', $admin);
+
         DB::table('changelogs')->insert([
-            'user' => $admin->name . ' ' . $admin->surname, 
+            'user' => $admin->name.' '.$admin->surname,
             'ip' => $_SERVER['REMOTE_ADDR'],
             'user_agent' => $request->header('User-Agent'),
-            'time' => date('Y-m-d H:i:s')
-        ]);        
-        
-    	return redirect()->route('AdminMainPage');
+            'time' => date('Y-m-d H:i:s'),
+        ]);
+
+        return redirect()->route('AdminMainPage');
     }
 
-    public function logout(Request $request) 
+    public function logout(Request $request): JsonResponse
     {
-    	if(Admin::isLogin()) 
-        {
+        if (Admin::isLogin()) {
             Session::forget('admin');
-            return response()->json(['status' => 1]);
-    	}
 
-    	return response()->json(['status' => 0]);
+            return response()->json(['status' => 1]);
+        }
+
+        return response()->json(['status' => 0]);
     }
 }

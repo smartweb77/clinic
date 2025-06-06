@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\Admin;
 
-use DB;
-use Session;
 use App\Models\Information;
-use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 
 class InformationController extends BaseController
 {
     public $data = []; // წარმოდგენის ფაილებზე მისამაგრებელი ინფორმაცია
+
     private $model;  // მიმდინარე ინსტანციის მოდელი
+
     private $views_folder; // წარმოდგენების ფაილების საქაღალდე  მიმდინარე ინსტანციისათვის
+
     private $main_table; // მიმდინარე ინსტანციის ძირითადი ცხრილი
+
     private $translates_table; // მიმდინარე ინსტანციის სათარგმნი ცხრილი
 
     /*
@@ -62,13 +64,12 @@ class InformationController extends BaseController
         /* ძირითადი ცხრილის ის ველები, რომელთა შესაბამისი html
          * ელემენტების ავტოდაგენერირებაც გვინდა წარმოდგენის ფაილში
          */
-        return  array_diff($main_table_columns,$main_no_generate_columns);
+        return array_diff($main_table_columns, $main_no_generate_columns);
     }
 
     public function translate_columns()
     {
-        if(property_exists(__CLASS__, 'translates_table'))
-        {
+        if (property_exists(__CLASS__, 'translates_table')) {
             $translates_table_columns = Schema::getColumnListing($this->translates_table);
 
             $translates_no_generate_columns = [
@@ -76,13 +77,11 @@ class InformationController extends BaseController
                 'parent_id',
                 'lang',
                 'created_at',
-                'updated_at'
+                'updated_at',
             ];
 
-            return array_diff($translates_table_columns,$translates_no_generate_columns);
-        }
-        else
-        {
+            return array_diff($translates_table_columns, $translates_no_generate_columns);
+        } else {
             return [];
         }
     }
@@ -93,8 +92,7 @@ class InformationController extends BaseController
     {
         $item = $this->model->find(3);
 
-        if(!$item)
-        {
+        if (! $item) {
             return redirect()->back();
         }
 
@@ -103,47 +101,42 @@ class InformationController extends BaseController
         $this->data['required_columns'] = $this->required_columns;
         $this->data['translate_columns'] = $this->translate_columns();
         $this->data['item'] = $item;
-        $this->data['model'] =  $this->model;
+        $this->data['model'] = $this->model;
         $this->data['main_table'] = $this->main_table;
 
-        return view($this->views_folder.'.edit',$this->data);
+        return view($this->views_folder.'.edit', $this->data);
     }
 
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
         $item = $this->model->find(3);
 
-        if(!$item)
-        {
+        if (! $item) {
             return redirect()->back();
         }
 
-        $this->validate($request,[
+        $this->validate($request, [
             'translates.'.$this->configuration->admin_lang.'.title' => 'required',
             'translates.*.slogan' => 'string|max:90',
             'logo' => 'mimes:jpeg,jpg,png,svg',
         ]);
 
-        $update = $this->model->updateItem($request , $item);
+        $update = $this->model->updateItem($request, $item);
 
         $request->session()->flash('last_edited_lang', $request->last_edited_lang);
 
-        if(!$update)
-        {
+        if (! $update) {
             $request->session()->flash('error', true);
+
             return redirect()->route('Edit'.$this->routes_suffix);
         }
 
         $request->session()->flash('success', true);
 
-        if($request->stay)
-        {
+        if ($request->stay) {
             return redirect()->route('Edit'.$this->routes_suffix);
-        }
-        else
-        {
-           return redirect()->route('AdminMainPage');
+        } else {
+            return redirect()->route('AdminMainPage');
         }
     }
 }
-

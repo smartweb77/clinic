@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\UserLog;
-use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class ActionLogController extends BaseController
 {
     public $data = [];
-    
-    public function index()
+
+    public function index(): View
     {
         $this->data['main_table'] = 'user_logs';
-        $this->data['items'] = UserLog::with('admin')->orderBy('id','DESC')->paginate(15);
-        
-        return view('Administrator.logs.actionlogs.index' , $this->data);
+        $this->data['items'] = UserLog::with('admin')->orderBy('id', 'DESC')->paginate(15);
+
+        return view('Administrator.logs.actionlogs.index', $this->data);
     }
 }

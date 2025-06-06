@@ -6,6 +6,5 @@ return [
     'doctors' => 'врачи',
     'news' => 'Новости',
     'history' => 'История',
-    'contact' => 'Контакт'
+    'contact' => 'Контакт',
 ];
-

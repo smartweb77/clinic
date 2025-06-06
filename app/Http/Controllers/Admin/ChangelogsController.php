@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
 use DB;
-use App\Models\Admin;
+use Illuminate\View\View;
 
 class ChangelogsController extends BaseController
 {
     public $data = [];
-    
-    public function index()
+
+    public function index(): View
     {
         $this->data['main_table'] = 'changelogs';
-        $this->data['items'] = DB::table('changelogs')->orderBy('id','DESC')->paginate(15);
-        return view('Administrator.logs.changelogs.index' , $this->data);
+        $this->data['items'] = DB::table('changelogs')->orderBy('id', 'DESC')->paginate(15);
+
+        return view('Administrator.logs.changelogs.index', $this->data);
     }
 }
