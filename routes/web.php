@@ -44,7 +44,7 @@ Route::get('/clear-cache', function () {
     return 'Done - cache are cleared';
 });
 
-Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']], function () {
+Route::prefix(LaravelLocalization::setLocale())->middleware('localeSessionRedirect', 'localizationRedirect', 'localeViewPath')->group(function () {
 
     Route::get('/', [IndexController::class, 'index'])->name('index');
     Route::get('/services', [ServicesController::class, 'index'])->name('services');
