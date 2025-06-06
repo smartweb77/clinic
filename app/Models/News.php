@@ -1,0 +1,281 @@
+<?php
+
+namespace App\Models;
+
+use DB;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
+use App\Traits\ActionLog;
+
+class News extends Model
+{
+    use ActionLog;
+
+    protected $fillable = ['image'];
+    private static $current_class = __CLASS__;
+    private static $translates_class = 'App\Models\NewsTranslate';
+    private static $main_table = 'news';
+    private static $translates_table = 'news_translates';
+
+    public static function get_required_lang()
+    {
+        return DB::table('configurations')->select('admin_lang')->first()->admin_lang;
+    }
+
+    public static function addItem($request)
+    {
+        $class_base_name = class_basename(self::$current_class);
+        $item = new self::$current_class;
+        $table_columns = Schema::getColumnListing(self::$main_table);
+        $request_keys = $request->except(['_token','translates','image','status','tag_ids','slider']);
+
+        $item->status = $request->status === 'on' ? 1 : 0;
+        $item->slider = $request->slider === 'on' ? 1 : 0;
+        $max_sort = self::$current_class::max('sort');
+        $item->sort = $max_sort ? ++$max_sort : 1;
+
+        foreach ($request_keys as $key => $value)
+        {
+            if(in_array($key, $table_columns))
+            {
+                $item->$key = $value;
+            }
+        }
+
+        if ($request->hasFile('image'))
+        {
+            $data = [];
+            $data['main_table'] = self::$main_table;
+            $data['column_name'] = 'image';
+            $data['upload_folder'] = $class_base_name;
+            $data['item'] = $item;
+
+            $upload_image = self::$current_class::uploadFile($request, $data);
+        }
+
+        if ($item->save())
+        {
+            if(property_exists(__CLASS__, 'translates_table'))
+            {
+                // თარგმანების შემცველი ასცოციაციური მასივი ინდექსებით ka,en,ru ...
+                $translates = $request->translates;
+                // თარგმანების ცხრილის ველები
+                $translates_table_columns = Schema::getColumnListing(self::$translates_table);
+
+                foreach ($translates as $lang => $translation_data)
+                {
+                    $item_translate = new self::$translates_class();
+
+                    /*
+                     *  უშუალოდ თარგმანების მასივი [ველის_დასახელება => თარგმანი_შესაბამის_ენაზე]
+                     *  $k : ველის დასახელება
+                     *  $v : თარგმანი შესაბამის ენაზე
+                     */
+                    foreach($translation_data as $k => $v)
+                    {
+                        /*  თუ დამატების შაბლონში აღწერილია ისეთი ველი, რომლის 'name'
+                         *  ატრიბუტის  შესაბამისი ველიც არ გვხვდება თარგმანების ცხრილში
+                         */
+                        if(!in_array($k, $translates_table_columns))
+                        {
+                            continue;
+                        }
+
+                        // თუ რომელიმე სათარგმნი ველი არ შეიყვანა აუცილებელი ენის გარდა რომელიმე სხვა ენაზე
+                        if(!$v)
+                        {
+                            // არაკრეფილის მნიშვნელობად ჩაჯდეს აუცილებელი ენის მნიშვნელობა
+                            $item_translate->$k = $translates[self::get_required_lang()][$k];
+                        }
+                        else
+                        {
+                            $item_translate->$k = $v;
+                        }
+                    }
+
+                    $item_translate->lang = $lang;
+                    $item_translate->parent_id = $item->id;
+                    $item_translate->save();
+                }
+            }
+            $item::storeLog($item, __CLASS__, self::$main_table, 'Create');
+            return true;
+        }
+        return false;
+    }
+
+    public static function updateItem($request, $item)
+    {
+        $class_base_name = class_basename(self::$current_class);
+        $table_columns = Schema::getColumnListing(self::$main_table);
+        $request_keys = $request->except(['_token','translates','image','status','tag_ids','slider']);
+
+        $item->status = $request->status === 'on' ? 1 : 0;
+        $item->slider = $request->slider === 'on' ? 1 : 0;
+
+        foreach ($request_keys as $key => $value)
+        {
+            if(in_array($key, $table_columns))
+            {
+                $item->$key = $value;
+            }
+        }
+
+        if ($request->hasFile('image'))
+        {
+            /*
+            * როდესაც public_html საქაღალდეში მხოლოდ საჯარო ფაილებია,
+            * საიტის ლოგიკა, კონფიგურაციული ფაილები და ა.შ კი მის გარეთ
+            *
+            */
+            if(file_exists('../public_html' . $item->image))
+            {
+               unlink('../public_html' . $item->image);
+            }
+
+            /*
+            // როდესაც მთლიანი საიტი public_html საქაღალდეშია
+            if(file_exists(public_path($item->image)))
+            {
+               unlink(public_path($item->image));
+            }
+            *
+            */
+
+            $data = [];
+            $data['main_table'] = self::$main_table;
+            $data['column_name'] = 'image';
+            $data['upload_folder'] = $class_base_name;
+            $data['item'] = $item;
+
+            $upload_image = self::$current_class::uploadFile($request, $data);
+        }
+
+        if($item->update())
+        {
+            if(property_exists(__CLASS__, 'translates_table'))
+            {
+                $translates = $request->translates;
+                $translates_table_columns = Schema::getColumnListing(self::$translates_table);
+
+                foreach ($translates as $lang => $translation_data)
+                {
+                    $item_translate = self::$translates_class::where('parent_id', $item->id)->where('lang', $lang)->first();
+
+                    foreach($translation_data as $k => $v)
+                    {
+                        /*  თუ რედაქტირების შაბლონში აღწერილია ისეთი ველი, რომლის 'name'
+                         *  ატრიბუტის  შესაბამისი ველიც არ გვხვდება თარგმანების ცხრილში
+                         */
+                        if(!in_array($k, $translates_table_columns))
+                        {
+                            continue;
+                        }
+
+                        if(!$v)
+                        {
+                            $item_translate->$k = $translates[self::get_required_lang()][$k];
+                        }
+                        else
+                        {
+                            $item_translate->$k = $v;
+                        }
+                    }
+
+                    $item_translate->update();
+                }
+            }
+            $item::storeLog($item, __CLASS__, self::$main_table, 'Updated');
+            return true;
+        }
+        return false;
+    }
+
+    public static function getItemInfo($id = 0, $local = '', $status_on = false)
+    {
+        if(property_exists(__CLASS__, 'translates_table'))
+        {
+            return self::$current_class::join(self::$translates_table, self::$main_table.'.id', '=', self::$translates_table.'.parent_id')
+                ->where(self::$main_table.'.id', $id)
+                ->where(self::$translates_table.'.lang', $local)
+                ->select(self::$main_table.'.*',
+                         self::$translates_table.'.title',
+                         self::$translates_table.'.description',
+                         self::$translates_table.'.meta_description'
+                        )
+                ->when($status_on, function ($query, $status_on) {
+                    return $query->where(self::$main_table.'.status', $status_on);
+                })
+                ->first();
+        }
+        else
+        {
+            return self::$current_class::where(self::$main_table.'.id', $id)->first();
+        }
+
+    }
+
+    public static function allItems($local = '', $status_on = false, $slider = false)
+    {
+        if(property_exists(__CLASS__, 'translates_table'))
+        {
+            return self::$current_class::join(self::$translates_table, self::$main_table.'.id', '=', self::$translates_table.'.parent_id')
+                    ->where(self::$translates_table.'.lang', $local)
+                    ->select(
+                                self::$main_table.'.*',
+                                self::$translates_table.'.title',
+                                self::$translates_table.'.meta_description'
+                            )
+                    ->when($slider, function ($query, $slider) {
+                        return $query->where(self::$main_table.'.slider', 1);
+                    })
+                    ->when($status_on, function ($query, $status_on) {
+                        return $query->where(self::$main_table.'.status', $status_on);
+                    })
+                    ->orderBy('sort', 'asc')
+                    ->paginate(6);
+        }
+        else
+        {
+            return self::$current_class::select('*')
+                    ->when($status_on, function ($query, $status_on) {
+                        return $query->where(self::$main_table.'.status', $status_on);
+                    })
+                    ->orderBy('sort', 'asc')
+                    ->get();
+        }
+    }
+
+    public static function mainPage($local = '')
+    {
+            return self::$current_class::join(self::$translates_table, self::$main_table.'.id', '=', self::$translates_table.'.parent_id')
+                ->where(self::$translates_table.'.lang', $local)
+                ->where(self::$main_table.'.status', 1)
+                ->select(
+                    self::$main_table.'.*',
+                    self::$translates_table.'.title',
+                    self::$translates_table.'.meta_description'
+                )
+                ->orderBy('sort', 'asc')
+                ->take(2)
+                ->get();
+    }
+
+    public static function otherNews($local = '', $no_id_contains)
+    {
+        return self::$current_class::join(self::$translates_table, self::$main_table.'.id', '=', self::$translates_table.'.parent_id')
+            ->where(self::$translates_table.'.lang', $local)
+            ->where(self::$main_table.'.status', 1)
+            ->where(self::$main_table.'.id', '!=', $no_id_contains)
+            ->select(
+                self::$main_table.'.*',
+                self::$translates_table.'.title',
+                self::$translates_table.'.meta_description'
+            )
+            ->orderBy('sort', 'asc')
+            ->take(3)
+            ->get();
+    }
+
+
+}
