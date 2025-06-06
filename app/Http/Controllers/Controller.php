@@ -9,12 +9,11 @@ use App\Models\Seo;
 use Cache;
 use DB;
 use Illuminate\Http\Request;
-use Illuminate\Routing\Controller as BaseController;
 use LaravelLocalization;
 use Session;
 use View;
 
-class Controller extends BaseController
+class Controller
 {
 
     protected $lang; // მიმდინარე ენა
